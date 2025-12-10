@@ -28,7 +28,7 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("📝 STEP 1: Creating Test Employees...\n");
 
         // Assembly Department
-        createTestEmployee("Contract",LocalDate.of(2022,11,10),"abc@gmail.com","Assembly","rahman","Abin","EMP005");
+        createTestEmployee("Contract",LocalDate.of(2022,11,10),"abcdefg@gmail.com","Assembly","rahman","Abin","EMP005");
         createTestEmployee("Permanent",LocalDate.of(2012,10,1),"efghi@gmail.com","Assembly","jiswan","muhammed","EMP001");
         // Quality Control Department
 
