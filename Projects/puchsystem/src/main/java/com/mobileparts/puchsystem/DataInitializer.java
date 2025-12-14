@@ -83,6 +83,23 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println(" -"+e.getFullName()+" | Expiring in "+daysUntilExpiry+" days");
         }
 
+        System.out.println("\n─────────────────────────────────────────────────────\n");
+
+        // ============================================
+        // TEST 2: Simulate extension request
+        // ============================================
+        String token = java.util.UUID.randomUUID().toString();
+        emp2.setExtensionToken(token);
+        emp2.setExtensionRequested(true);
+        emp2.setExtensionRequestDate(LocalDate.now());
+        employeeRepository.save(emp2);
+
+        System.out.println("Generated Token Request for : "+emp2.getFullName());
+        System.out.println("Token :"+token.substring(0,8)+"...");
+        System.out.println("Confirmation link: http://localhost:8080/contract/extend?token=" + token);
+
+        System.out.println("\n─────────────────────────────────────────────────────\n");
+
 
 
 
