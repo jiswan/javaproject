@@ -3,6 +3,7 @@ package com.mobileparts.puchsystem;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 import com.mobileparts.puchsystem.repository.EmployeeRepository;
 import com.mobileparts.puchsystem.service.EmailService;
@@ -88,6 +89,7 @@ public class DataInitializer implements CommandLineRunner {
         // ============================================
         // TEST 2: Simulate extension request
         // ============================================
+        System.out.println("📧 TEST 2: Simulate Extension Request\n");
         String token = java.util.UUID.randomUUID().toString();
         emp2.setExtensionToken(token);
         emp2.setExtensionRequested(true);
@@ -99,6 +101,41 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("Confirmation link: http://localhost:8080/contract/extend?token=" + token);
 
         System.out.println("\n─────────────────────────────────────────────────────\n");
+
+        // ============================================
+        // TEST 3: Find by token
+        // ============================================
+        System.out.println(" TEST 3: Find Employee by Token\n");
+        Optional<Employee> findByToken = employeeRepository.findByExtensionToken(token);
+        if(findByToken.isPresent())
+        {
+            System.out.println("found employee by token :"+findByToken.get().getFullName());
+        }
+        else
+        {
+            System.out.println("No token found ");
+        }
+        System.out.println("\n─────────────────────────────────────────────────────\n");
+
+        // ============================================
+        // TEST 4: Count pending requests
+        // ============================================
+        System.out.println("TEST 4: Count Pending Extension Requests\n");
+        long pendingCount = employeeRepository.countByExtensionRequested(true);
+        System.out.println("✅ Pending extension requests: " + pendingCount);
+        System.out.println("\n─────────────────────────────────────────────────────\n");
+
+        // ============================================
+        // TEST 5: List all pending requests
+        // ============================================
+        System.out.println("📋 TEST 5: List All Pending Extension Requests\n");
+
+        List<Employee> pendingRequests = employeeRepository.findByExtensionRequestedTrue();
+        System.out.println("Employees waiting for response: " + pendingRequests.size());
+        for (Employee e : pendingRequests) {
+            System.out.println("   - " + e.getFullName() +
+                    " | Requested: " + e.getExtensionRequestDate());
+        }
 
 
 
