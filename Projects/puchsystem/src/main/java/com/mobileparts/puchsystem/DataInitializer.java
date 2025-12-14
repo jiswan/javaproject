@@ -1,6 +1,7 @@
 package com.mobileparts.puchsystem;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import com.mobileparts.puchsystem.repository.EmployeeRepository;
@@ -35,7 +36,7 @@ public class DataInitializer implements CommandLineRunner {
         // ============================================
         System.out.println("📝 Creating Test Employees with Contract Dates...\n");
         Employee emp = new Employee(
-                "contract",LocalDate.now().minusYears(1),
+                "Contract",LocalDate.now().minusYears(1),
                 "abinbasheer@gmail.com","Assembely","basheer","Abin","EMP001");
         emp.setContractEndDate(LocalDate.now().plusDays(30));
         employeeRepository.save(emp);
@@ -43,7 +44,7 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("Hire Date : "+emp.getHireDate());
 
         Employee emp2 = new Employee(
-                "contract",LocalDate.now().minusYears(2),
+                "Contract",LocalDate.now().minusYears(2),
                 "jiswan@gmail.com","Assembely","jiswan","Muhammed","EMP002");
         emp2.setContractEndDate(LocalDate.now().plusDays(45));
         employeeRepository.save(emp2);
@@ -51,7 +52,7 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("Hire Date : "+emp2.getHireDate());
 
         Employee emp3 = new Employee(
-                "contract",LocalDate.now().minusMonths(6),
+                "Contract",LocalDate.now().minusMonths(6),
                 "ijas@gmail.com","Paint","Ahmed","Ijas","EMP003");
         emp3.setContractEndDate(LocalDate.now().plusDays(90));
         employeeRepository.save(emp3);
@@ -66,6 +67,22 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("✅ " + emp4.getFullName() + " | Type: Permanent (no end date)");
 
         System.out.println("\n─────────────────────────────────────────────────────\n");
+
+        // ============================================
+        // TEST 1: Find contracts expiring in next 60 days
+        // ============================================
+        System.out.println("🔍 TEST 1: Find Contracts Expiring in Next 60 Days\n");
+        LocalDate sixyDaysFromNow = LocalDate.now().plusDays(60);
+        List<Employee> expiring = employeeRepository.findByEmployeeTypeAndContractEndDateBefore(
+                "Contract",sixyDaysFromNow);
+        System.out.println("Found: "+expiring.size()+" contracts expiring in next 60 days:");
+        for(Employee e : expiring)
+        {
+            long daysUntilExpiry = ChronoUnit.DAYS.between(
+                    LocalDate.now(),e.getContractEndDate());
+            System.out.println(" -"+e.getFullName()+" | Expiring in "+daysUntilExpiry+" days");
+        }
+
 
 
 
