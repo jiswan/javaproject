@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mobileparts.puchsystem.repository.EmployeeRepository;
+import com.mobileparts.puchsystem.service.ContractExtensionService;
 import com.mobileparts.puchsystem.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -23,6 +24,8 @@ public class DataInitializer implements CommandLineRunner {
     public EmailService emailService;
     @Autowired
     public EmployeeRepository employeeRepository;
+    @Autowired
+    public ContractExtensionService contractExtensionService;
     @Override
     public void run(String... args) throws Exception
     {
@@ -136,8 +139,14 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println("   - " + e.getFullName() +
                     " | Requested: " + e.getExtensionRequestDate());
         }
+        System.out.println("\n─────────────────────────────────────────────────────\n");
 
+        // ============================================
+        //  Send Contract Extension Emails
+        // ============================================
+        System.out.println("🔍 TEST 2: Send Extension Emails to Expiring Contracts\n");
 
+        contractExtensionService.sendContractExtensionEmails();
 
 
 
