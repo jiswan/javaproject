@@ -31,7 +31,7 @@ public class EmailService {
                         If you have any questions, please contact HR.
 
                         Best regards,
-                        TMMC HR Department
+                        HR Department
                         """,
                 emp.getFullName(),
                 message
