@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -157,5 +158,36 @@ public class ContractExtensionService {
         System.out.println("📊 Summary: Sent " + emailSend + " extension emails");
         System.out.println("═════════════════════════════════════════════════\n");
 
+    }
+
+    public String acceptContractExtension(String token)
+    {
+        Optional<Employee> employeeOpt = employeeRepository.findByExtensionToken(token);
+        if(!employeeOpt.isPresent())
+        {
+            return " Invalid token. This link may have expired or already been used.";
+        }
+        Employee employee = employeeOpt.get();
+
+        //Extend contract by 1 year
+        LocalDate currentEndDate = employee.getContractEndDate();
+        LocalDate newEndDate = currentEndDate.plusYears(1);
+        employee.setContractEndDate(newEndDate);
+
+        // Clear the token (can only be used once)
+        employee.setExtensionToken(null);
+        employee.setExtensionRequested(false);
+
+        // Save changes to database
+        employeeRepository.save(employee);
+
+        //Send confirmation email
+        String confirmationSubject = "Contract Extension Confirmed";
+        String confirmationBody = buildConfirmationEmail(employee, newEndDate, false);
+        emailService.sendEmail(employee.getEmailId(), confirmationSubject, confirmationBody);
+
+        // Return success message
+        return " SUCCESS! Contract extended for " + employee.getFullName() +
+                " until " + newEndDate;
     }
 }
