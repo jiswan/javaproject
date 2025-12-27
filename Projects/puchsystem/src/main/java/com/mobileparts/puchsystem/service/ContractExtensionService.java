@@ -190,4 +190,61 @@ public class ContractExtensionService {
         return " SUCCESS! Contract extended for " + employee.getFullName() +
                 " until " + newEndDate;
     }
+
+    private String buildConfirmationEmail(Employee employee, LocalDate newEndDate , boolean isPermanent)
+    {
+        StringBuilder email = new StringBuilder();
+        email.append("Dear").append(employee.getFullName()).append(",\n\n");
+        if(isPermanent)
+        {
+            // Confirmation for permanent position
+            email.append("Congratulations! 🎉\n\n");
+            email.append("We are delighted to confirm that you have been converted to a ");
+            email.append("PERMANENT EMPLOYEE at ***, effective immediately.\n\n");
+            email.append("Your employee record has been updated:\n");
+            email.append("- Employee Type: Permanent\n");
+            email.append("- Status: Active\n");
+            email.append("- Contract End Date: N/A (Permanent Position)\n\n");
+            email.append("Welcome to the permanent team! We look forward to your ");
+            email.append("continued contributions to ***.\n\n");
+        }
+        else
+        {
+
+            // Confirmation for contract extension
+            email.append("Thank you for accepting our contract extension offer!\n\n");
+            email.append("Your contract has been successfully extended.\n\n");
+            email.append("Updated Contract Details:\n");
+            email.append("- Employee Type: Contract\n");
+            email.append("- New Contract End Date: ").append(newEndDate).append("\n");
+            email.append("- Extension Duration: 1 Year\n\n");
+            email.append("We appreciate your continued dedication to ***.\n\n");
+        }
+        email.append("If you have any questions, please contact Human Resources.\n\n");
+        email.append("Best regards,\n");
+        email.append("*** Human Resources\n");
+        return email.toString();
+
+    }
+    public String acceptPermanentPosition(String token)
+    {
+        Optional<Employee> employeeOpt = employeeRepository.findByExtensionToken(token);
+        if(!employeeOpt.isPresent())
+        {
+            return " Invalid token. This link may have expired or already been used.";
+        }
+         Employee employee = employeeOpt.get();
+        employee.setEmployeeType("Permanent");
+        employee.setExtensionToken(null);
+        employee.setContractEndDate(null);
+        employee.setExtensionRequested(false);
+
+        employeeRepository.save(employee);
+        String confirmationSubject = "Permanent Position Confirmed - Congratulations!";
+        String confirmationBody = buildConfirmationEmail(employee,null,true);
+        emailService.sendEmail(employee.getEmployeeId(),confirmationSubject,confirmationBody);
+
+        return " CONGRATULATIONS! " + employee.getFullName()+
+                " is now a PERMANENT employee at ***!";
+    }
 }
