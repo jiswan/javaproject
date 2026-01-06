@@ -1,5 +1,6 @@
 package com.mobileparts.puchsystem.service;
 
+import com.mobileparts.puchsystem.exception.InvalidTokenException;
 import com.mobileparts.puchsystem.model.Employee;
 import com.mobileparts.puchsystem.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class ContractExtensionService {
     @Autowired
     public EmailService emailService;
 
-    private List<Employee> findContractsExpiringSoon()
+    public List<Employee> findContractsExpiringSoon()
     {
         LocalDate sixtyDaysFromNow = LocalDate.now().plusDays(60);
         List<Employee> expiringContracts = employeeRepository.findByEmployeeTypeAndContractEndDateBefore(
@@ -165,7 +166,7 @@ public class ContractExtensionService {
         Optional<Employee> employeeOpt = employeeRepository.findByExtensionToken(token);
         if(!employeeOpt.isPresent())
         {
-            return " Invalid token. This link may have expired or already been used.";
+            throw  new InvalidTokenException();
         }
         Employee employee = employeeOpt.get();
 
@@ -231,7 +232,7 @@ public class ContractExtensionService {
         Optional<Employee> employeeOpt = employeeRepository.findByExtensionToken(token);
         if(!employeeOpt.isPresent())
         {
-            return " Invalid token. This link may have expired or already been used.";
+            throw new InvalidTokenException();
         }
          Employee employee = employeeOpt.get();
         employee.setEmployeeType("Permanent");
