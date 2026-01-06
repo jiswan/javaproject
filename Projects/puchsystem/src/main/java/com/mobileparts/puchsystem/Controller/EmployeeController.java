@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.rmi.server.RemoteRef;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/employees")
@@ -31,15 +33,8 @@ public class EmployeeController {
     @GetMapping("/{employeeId}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable String employeeId)
     {
-        Optional<Employee> employee = employeeService.getEmployeeByEmployeeId(employeeId);
-        if (employee.isPresent())
-        {
-            return ResponseEntity.ok(employee.get());
-        }
-        else
-        {
-            return ResponseEntity.notFound().build();
-        }
+        Employee employee = employeeService.getEmployeeByEmployeeId(employeeId);
+       return ResponseEntity.ok(employee);
     }
 
     @PostMapping
@@ -51,13 +46,8 @@ public class EmployeeController {
     @PutMapping("/{employeeId}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable String employeeId, @RequestBody Employee employeeDetails)
     {
-        Optional<Employee> employeeOpt = employeeService.getEmployeeByEmployeeId(employeeId);
-        if(!employeeOpt.isPresent())
-        {
-            return ResponseEntity.notFound().build();
-        }
+        Employee existingEmployee = employeeService.getEmployeeByEmployeeId(employeeId);
 
-        Employee existingEmployee = employeeOpt.get();
         if(employeeDetails.getFirstName()!=null)
         {
             existingEmployee.setFirstName(employeeDetails.getFirstName());
@@ -83,13 +73,54 @@ public class EmployeeController {
     @DeleteMapping("/{employeeId}")
     public ResponseEntity<Employee> deleteEmployee(@PathVariable String employeeId)
     {
-        Optional<Employee> employeeOpt = employeeService.getEmployeeByEmployeeId(employeeId);
-        if (!employeeOpt.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        Employee deleteEmployee = employeeOpt.get();
-        employeeRepository.delete(deleteEmployee);
+        Employee employeeOpt = employeeService.getEmployeeByEmployeeId(employeeId);
+        employeeRepository.delete(employeeOpt);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Employee>> searchEmployee(@RequestParam String query)
+    {
+        String searchLower = query.toLowerCase();
+        List<Employee> allEmployees = employeeRepository.findAll();
+        List<Employee> result = allEmployees.stream().filter(
+                e-> e.getFirstName().toLowerCase().contains(searchLower)||
+                        e.getLastName().toLowerCase().contains(searchLower)||
+                        e.getFullName().toLowerCase().contains(searchLower)
+        ).toList();
+
+        return  ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Employee>> filterEmployee(@RequestParam(required = false) String department,
+                                                         @RequestParam(required = false) String type)
+    {
+        List<Employee> employee = employeeRepository.findAll();
+        if(department!=null && !department.isEmpty())
+        {
+            employee = employee.stream().filter(e->e.getDepartment().equalsIgnoreCase(department)).toList();
+        }
+
+        if(type!=null&& !type.isEmpty())
+        {
+            employee = employee.stream().filter(
+                    e->e.getEmployeeType().equalsIgnoreCase(type)).toList();
+        }
+        return  ResponseEntity.ok(employee);
+    }
+
+    @GetMapping("/Employee/{department}")
+    public ResponseEntity<List<Employee>> getByDepoartment(@PathVariable String department)
+    {
+        List<Employee> result = employeeRepository.findByDepartment(department);
+        return ResponseEntity.ok(result);
+    }
+    @GetMapping("/active")
+    public ResponseEntity<List<Employee>> getActiveEmployee()
+    {
+        List<Employee> activeEmployee = employeeRepository.findByIsActiveTrue();
+        return ResponseEntity.ok(activeEmployee);
     }
 
 }

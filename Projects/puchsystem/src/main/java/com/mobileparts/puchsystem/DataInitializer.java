@@ -31,130 +31,180 @@ public class DataInitializer implements CommandLineRunner {
     {
         System.out.println("\n");
         System.out.println("═══════════════════════════════════════════════");
-        System.out.println("    TESTING CONTRACT REPOSITORY METHODS");
+        System.out.println("    CONTRACT MANAGEMENT WORKFLOW TEST      ");
         System.out.println("═══════════════════════════════════════════════");
         System.out.println("\n");
 
         // ============================================
         // CREATE TEST EMPLOYEES WITH DIFFERENT CONTRACT DATES
         // ============================================
-        System.out.println("📝 Creating Test Employees with Contract Dates...\n");
-        Employee emp = new Employee(
+        System.out.println("SCENARIO SETUP: Creating Test Employees\n");
+        System.out.println("─────────────────────────────────────────────────────\n");
+        Employee emp1 = new Employee(
                 "Contract",LocalDate.now().minusYears(1),
-                "abinbasheer@gmail.com","Assembely","basheer","Abin","EMP001");
-        emp.setContractEndDate(LocalDate.now().plusDays(30));
-        employeeRepository.save(emp);
-        System.out.println("✅ " + emp.getFullName() + " | Contract ends: " + emp.getContractEndDate());
-        System.out.println("Hire Date : "+emp.getHireDate());
+                "emp1@mmc.com","Assembely","Smith","John","EMP001");
+        emp1.setContractEndDate(LocalDate.now().plusDays(20));
+        employeeRepository.save(emp1);
+        System.out.println("John Smith | Contract | 1 year service | Expires in 20 days");
 
         Employee emp2 = new Employee(
-                "Contract",LocalDate.now().minusYears(2),
-                "jiswan@gmail.com","Assembely","jiswan","Muhammed","EMP002");
-        emp2.setContractEndDate(LocalDate.now().plusDays(45));
+                "Contract",LocalDate.now().minusYears(3),
+                "emp2@mmc.com","Assembly","Johnson","Sarah","EMP002");
+        emp2.setContractEndDate(LocalDate.now().plusDays(35));
         employeeRepository.save(emp2);
-        System.out.println("✅ " + emp2.getFullName() + " | Contract ends: " + emp2.getContractEndDate());
-        System.out.println("Hire Date : "+emp2.getHireDate());
+        System.out.println("Sarah Johnson | Contract | 3 years service | Expires in 35 days");
 
         Employee emp3 = new Employee(
-                "Contract",LocalDate.now().minusMonths(6),
-                "ijas@gmail.com","Paint","Ahmed","Ijas","EMP003");
-        emp3.setContractEndDate(LocalDate.now().plusDays(90));
+                "Contract",LocalDate.now().minusYears(2),
+                "emp3@mmc.com","Paint","Williams","Mikw","EMP003");
+        emp3.setContractEndDate(LocalDate.now().plusDays(50));
         employeeRepository.save(emp3);
-        System.out.println("✅ " + emp3.getFullName() + " | Contract ends: " + emp3.getContractEndDate());
-        System.out.println("Hire Date : "+emp3.getHireDate());
+        System.out.println("Mike Williams | Contract | 2 years service | Expires in 50 days");
 
-        // Employee 4: Already Permanent
         Employee emp4 = new Employee(
-                "Permanent", LocalDate.now().minusYears(5), "jane@gmail.com", "Production",
-                "smith", "jane","EMP004");
+                "Contract",LocalDate.now().minusMonths(6),
+                "emp4@mmc.com","Production","Emily","Brown","EMP004");
+        emp4.setContractEndDate(LocalDate.now().plusDays(90));
         employeeRepository.save(emp4);
-        System.out.println("✅ " + emp4.getFullName() + " | Type: Permanent (no end date)");
+        System.out.println("Emily Brown | Contract | 6 months service | Expires in 90 days (too far)");
 
+        Employee emp5 = new Employee(
+                "Permanent",LocalDate.now().minusYears(5),
+                "emp5@mmc.com","Engineering","Davis","RObert","EMP005");
+        employeeRepository.save(emp5);
+        System.out.println("Robert Davis | PERMANENT | 5 years service");
+
+        Employee emp6 = new Employee(
+                "Contract",LocalDate.now().minusYears(1).minusDays(6),
+                "emp6@mmc.com","Quality","Wilson","Lisa","EMP006");
+        emp6.setContractEndDate(LocalDate.now().minusDays(10));
+        employeeRepository.save(emp6);
+        System.out.println(" Lisa Wilson | Contract | Expired 10 days ago");
+
+        Employee emp7 = new Employee(
+                "Contract",LocalDate.now().minusMonths(6),
+                "emp7@mmc.com","Logistic","Martinez","Carlos","EMP007");
+        emp7.setContractEndDate(LocalDate.now().plusDays(55));
+        employeeRepository.save(emp7);;
+        System.out.println("Carlos Martinez | Contract | 6 months service | Expires in 55 days");
         System.out.println("\n─────────────────────────────────────────────────────\n");
 
         // ============================================
-        // TEST 1: Find contracts expiring in next 60 days
+        // STEP 1: Find Expiring Contracts
         // ============================================
-        System.out.println("🔍 TEST 1: Find Contracts Expiring in Next 60 Days\n");
-        LocalDate sixyDaysFromNow = LocalDate.now().plusDays(60);
-        List<Employee> expiring = employeeRepository.findByEmployeeTypeAndContractEndDateBefore(
-                "Contract",sixyDaysFromNow);
-        System.out.println("Found: "+expiring.size()+" contracts expiring in next 60 days:");
+        System.out.println("🔍 STEP 1: System Checks for Expiring Contracts\n");
+        LocalDate sixtyDayFromNow = LocalDate.now().plusDays(60);
+        System.out.println("Today: "+LocalDate.now());
+        System.out.println("60 Days cutoff: "+sixtyDayFromNow);
+        System.out.println();
+
+        List<Employee> expiring = employeeRepository.findByEmployeeTypeAndContractEndDateBefore("Contract",sixtyDayFromNow);
+        System.out.println("Found: "+expiring.size()+ " contracts expiring in next 60 days:");
         for(Employee e : expiring)
         {
-            long daysUntilExpiry = ChronoUnit.DAYS.between(
-                    LocalDate.now(),e.getContractEndDate());
-            System.out.println(" -"+e.getFullName()+" | Expiring in "+daysUntilExpiry+" days");
-        }
-
-        System.out.println("\n─────────────────────────────────────────────────────\n");
-
-        // ============================================
-        // TEST 2: Simulate extension request
-        // ============================================
-        System.out.println("📧 TEST 2: Simulate Extension Request\n");
-        String token = java.util.UUID.randomUUID().toString();
-        emp2.setExtensionToken(token);
-        emp2.setExtensionRequested(true);
-        emp2.setExtensionRequestDate(LocalDate.now());
-        employeeRepository.save(emp2);
-
-        System.out.println("Generated Token Request for : "+emp2.getFullName());
-        System.out.println("Token :"+token.substring(0,8)+"...");
-        System.out.println("Confirmation link: http://localhost:8080/contract/extend?token=" + token);
-
-        System.out.println("\n─────────────────────────────────────────────────────\n");
-
-        // ============================================
-        // TEST 3: Find by token
-        // ============================================
-        System.out.println(" TEST 3: Find Employee by Token\n");
-        Optional<Employee> findByToken = employeeRepository.findByExtensionToken(token);
-        if(findByToken.isPresent())
-        {
-            System.out.println("found employee by token :"+findByToken.get().getFullName());
-        }
-        else
-        {
-            System.out.println("No token found ");
+            long yearsOfService = ChronoUnit.YEARS.between(e.getHireDate(),LocalDate.now());
+            long daysUntil = ChronoUnit.DAYS.between(LocalDate.now(),e.getContractEndDate());
+            System.out.println("  -"+e.getFullName()+
+                    "| Expire in "+daysUntil+"days"+
+                    "| "+yearsOfService+"years of service");
         }
         System.out.println("\n─────────────────────────────────────────────────────\n");
-
         // ============================================
-        // TEST 4: Count pending requests
+        // STEP 2: Send Extension Emails
         // ============================================
-        System.out.println("TEST 4: Count Pending Extension Requests\n");
-        long pendingCount = employeeRepository.countByExtensionRequested(true);
-        System.out.println("✅ Pending extension requests: " + pendingCount);
-        System.out.println("\n─────────────────────────────────────────────────────\n");
-
-        // ============================================
-        // TEST 5: List all pending requests
-        // ============================================
-        System.out.println("📋 TEST 5: List All Pending Extension Requests\n");
-
-        List<Employee> pendingRequests = employeeRepository.findByExtensionRequestedTrue();
-        System.out.println("Employees waiting for response: " + pendingRequests.size());
-        for (Employee e : pendingRequests) {
-            System.out.println("   - " + e.getFullName() +
-                    " | Requested: " + e.getExtensionRequestDate());
-        }
-        System.out.println("\n─────────────────────────────────────────────────────\n");
-
-        // ============================================
-        //  Send Contract Extension Emails
-        // ============================================
-        System.out.println("🔍 TEST 2: Send Extension Emails to Expiring Contracts\n");
-
         contractExtensionService.sendContractExtensionEmails();
 
+        // ============================================
+        // STEP 3: Employees Respond
+        // ============================================
+        System.out.println("👥 STEP 3: Employees Respond to Offers\n");
+        System.out.println("Scenario A: John Smith accepts 1-year extension");
+        Optional<Employee> johnOpt = employeeRepository.findByEmailId("emp1@mmc.com");
+        if(johnOpt.isPresent())
+        {
+            String johnToken = johnOpt.get().getExtensionToken();
+            String result = contractExtensionService.acceptContractExtension(johnToken);
+            System.out.println(result);
+        }
+        System.out.println();
 
+        //accepts permanent position
+        System.out.println("Scenario B: Sarah Johnson accepts PERMANENT position");
+        Optional<Employee> sarahOpt = employeeRepository.findByEmailId("emp2@mmc.com");
+        if (sarahOpt.isPresent())
+        {
+            String sarahToken = sarahOpt.get().getExtensionToken();
+            String result = contractExtensionService.acceptPermanentPosition(sarahToken);
+            System.out.println(result);
+        }
+        System.out.println();
+
+        // Mike chooses extension instead of permanent
+        System.out.println(" Scenario C: Mike Williams chooses EXTENSION (even though eligible for permanent)");
+        Optional<Employee> mikeOpt = employeeRepository.findByEmailId("emp3@mmc.com");
+        if(mikeOpt.isPresent())
+        {
+            String mikeToken = mikeOpt.get().getExtensionToken();
+            String result = contractExtensionService.acceptContractExtension(mikeToken);
+            System.out.println(result);
+        }
+        System.out.println();
+
+        System.out.println();
+
+        // Carlos ignores email (no action)
+        System.out.println("📌 Scenario D: Carlos Martinez IGNORES email (no action taken)");
+        System.out.println("   ⏳ Carlos has not responded yet");
+        System.out.println();
+
+        System.out.println("\n─────────────────────────────────────────────────────\n");
+
+        // ============================================
+        // STEP 4: Verify Final State
+        // ============================================
+        System.out.println("📊 STEP 4: Final System State Report\n");
+
+        List<Employee> allEmployees = employeeRepository.findAll();
+
+        System.out.println("╔════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                    EMPLOYEE STATUS REPORT                              ║");
+        System.out.println("╚════════════════════════════════════════════════════════════════════════╝\n");
+
+        for (Employee emp : allEmployees) {
+            System.out.println("Employee: " + emp.getFullName());
+            System.out.println("   Type: " + emp.getEmployeeType());
+            System.out.println("   Contract End: " +
+                    (emp.getContractEndDate() != null ? emp.getContractEndDate() : "N/A (Permanent)"));
+            System.out.println("   Extension Pending: " + emp.isExtensionRequested());
+            System.out.println("   Years of Service: " +
+                    ChronoUnit.YEARS.between(emp.getHireDate(), LocalDate.now()));
+            System.out.println();
+        }
+
+        System.out.println("─────────────────────────────────────────────────────\n");
+
+        // ============================================
+        // STEP 5: Statistics Summary
+        // ============================================
+        System.out.println("📈 STEP 5: Statistics Summary\n");
+
+        long totalEmployees = employeeRepository.count();
+        long permanentCount = employeeRepository.countByEmployeeType("Permanent");
+        long contractCount = employeeRepository.countByEmployeeType("Contract");
+        long pendingRequests = employeeRepository.countByExtensionRequested(true);
+
+        System.out.println("Total Employees: " + totalEmployees);
+        System.out.println("Permanent Employees: " + permanentCount);
+        System.out.println("Contract Employees: " + contractCount);
+        System.out.println("Pending Extension Requests: " + pendingRequests);
+        System.out.println();
+
+        System.out.println("╔════════════════════════════════════════════════════════╗");
+        System.out.println("║          WORKFLOW TEST COMPLETE! ✅                    ║");
+        System.out.println("╚════════════════════════════════════════════════════════╝\n");
 
     }
 
-    private void createTestEmployee(String employeeType,LocalDate hireDate ,String emailId,String department,String lastName,String firstName,String employeeId)
-    {
-        Employee e = new Employee(employeeType,hireDate,emailId,department,lastName,firstName,employeeId);
-        employeeService.createEmployee(employeeType,hireDate,emailId,department,lastName,firstName,employeeId);
-    }
+
+
 }

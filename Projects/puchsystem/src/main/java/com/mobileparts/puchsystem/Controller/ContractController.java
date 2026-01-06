@@ -53,33 +53,20 @@ public class ContractController
         String result = contractExtensionService.acceptContractExtension(token);
         // Build response
         Map<String, String> response = new HashMap<>();
-
-        if (result.contains("SUCCESS"))
-        {
             response.put("status", "success");
             response.put("message", result);
             return ResponseEntity.ok(response);
-        }
-        else {
-            response.put("status", "error");
-            response.put("message", result);
-            return ResponseEntity.badRequest().body(response);
-        }
+
     }
     @GetMapping("/permanet")
     public ResponseEntity<Map<String,String>> acceptPermanent(@RequestParam String token)
     {
         String result = contractExtensionService.acceptPermanentPosition(token);
         Map<String,String> response = new HashMap<>();
-        if (result.contains("CONGRATULATIONS")) {
             response.put("status", "success");
             response.put("message", result);
             return ResponseEntity.ok(response);
-        } else {
-            response.put("status", "error");
-            response.put("message", result);
-            return ResponseEntity.badRequest().body(response);
-        }
+
     }
 
 

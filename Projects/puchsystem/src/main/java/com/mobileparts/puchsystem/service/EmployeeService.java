@@ -1,5 +1,6 @@
 package com.mobileparts.puchsystem.service;
 
+import com.mobileparts.puchsystem.exception.EmployeeNotFoundException;
 import com.mobileparts.puchsystem.model.Employee;
 import com.mobileparts.puchsystem.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+
 
 @Service
 public class EmployeeService
@@ -23,10 +25,16 @@ public class EmployeeService
 
     }
 
-    public Employee getEmployeeById(String employeeId)
+    public Employee saveEmployee(Employee employee)
     {
-        return  employeeRepository.findById(employeeId)
-                .orElseThrow(()->new RuntimeException("Employee not found") );
+        return  employeeRepository.save(employee);
+    }
+
+    public Employee  getEmployeeByEmployeeId(String employeeId)
+    {
+        return  employeeRepository.findByEmployeeId(employeeId).orElseThrow(
+                ()->new EmployeeNotFoundException(employeeId,"employee id")
+        );
     }
 
     public List<Employee> getAllEmployee()
