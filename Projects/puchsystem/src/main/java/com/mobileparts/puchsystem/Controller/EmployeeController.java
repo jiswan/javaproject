@@ -1,5 +1,7 @@
 package com.mobileparts.puchsystem.Controller;
 
+import com.mobileparts.puchsystem.dto.EmployeeDTO;
+import com.mobileparts.puchsystem.dto.EmployeeMapper;
 import com.mobileparts.puchsystem.model.Employee;
 import com.mobileparts.puchsystem.repository.EmployeeRepository;
 import com.mobileparts.puchsystem.service.EmployeeService;
@@ -24,17 +26,19 @@ public class EmployeeController {
     public EmployeeRepository employeeRepository;
 
     @GetMapping
-    public ResponseEntity<List<Employee>> getAllEmployee()
+    public ResponseEntity<List<EmployeeDTO>> getAllEmployee()
     {
        List<Employee> employees = employeeService.getAllEmployee();
-       return ResponseEntity.ok(employees);
+       List<EmployeeDTO> employeeDTO = EmployeeMapper.toDTOList(employees);
+       return ResponseEntity.ok(employeeDTO);
     }
 
     @GetMapping("/{employeeId}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable String employeeId)
+    public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable String employeeId)
     {
         Employee employee = employeeService.getEmployeeByEmployeeId(employeeId);
-       return ResponseEntity.ok(employee);
+        EmployeeDTO employeeDTO = EmployeeMapper.toDTO(employee);
+       return ResponseEntity.ok(employeeDTO);
     }
 
     @PostMapping
@@ -44,7 +48,7 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedEmployee);
     }
     @PutMapping("/{employeeId}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable String employeeId, @RequestBody Employee employeeDetails)
+    public ResponseEntity<EmployeeDTO> updateEmployee(@PathVariable String employeeId, @RequestBody Employee employeeDetails)
     {
         Employee existingEmployee = employeeService.getEmployeeByEmployeeId(employeeId);
 
@@ -65,7 +69,8 @@ public class EmployeeController {
         }
 
         Employee updatedEmployee = employeeService.saveEmployee(existingEmployee);
-        return  ResponseEntity.ok(updatedEmployee);
+        EmployeeDTO dto = EmployeeMapper.toDTO(updatedEmployee);
+        return  ResponseEntity.ok(dto);
 
 
     }
@@ -79,7 +84,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Employee>> searchEmployee(@RequestParam String query)
+    public ResponseEntity<List<EmployeeDTO>> searchEmployee(@RequestParam String query)
     {
         String searchLower = query.toLowerCase();
         List<Employee> allEmployees = employeeRepository.findAll();
@@ -88,12 +93,12 @@ public class EmployeeController {
                         e.getLastName().toLowerCase().contains(searchLower)||
                         e.getFullName().toLowerCase().contains(searchLower)
         ).toList();
-
-        return  ResponseEntity.ok(result);
+        List<EmployeeDTO> dto = EmployeeMapper.toDTOList(result);
+        return  ResponseEntity.ok(dto);
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<Employee>> filterEmployee(@RequestParam(required = false) String department,
+    public ResponseEntity<List<EmployeeDTO>> filterEmployee(@RequestParam(required = false) String department,
                                                          @RequestParam(required = false) String type)
     {
         List<Employee> employee = employeeRepository.findAll();
@@ -107,20 +112,23 @@ public class EmployeeController {
             employee = employee.stream().filter(
                     e->e.getEmployeeType().equalsIgnoreCase(type)).toList();
         }
-        return  ResponseEntity.ok(employee);
+        List<EmployeeDTO> dto = EmployeeMapper.toDTOList(employee);
+        return  ResponseEntity.ok(dto);
     }
 
     @GetMapping("/Employee/{department}")
-    public ResponseEntity<List<Employee>> getByDepoartment(@PathVariable String department)
+    public ResponseEntity<List<EmployeeDTO>> getByDepoartment(@PathVariable String department)
     {
         List<Employee> result = employeeRepository.findByDepartment(department);
-        return ResponseEntity.ok(result);
+        List<EmployeeDTO> dto = EmployeeMapper.toDTOList(result);
+        return ResponseEntity.ok(dto);
     }
     @GetMapping("/active")
-    public ResponseEntity<List<Employee>> getActiveEmployee()
+    public ResponseEntity<List<EmployeeDTO>> getActiveEmployee()
     {
         List<Employee> activeEmployee = employeeRepository.findByIsActiveTrue();
-        return ResponseEntity.ok(activeEmployee);
+        List<EmployeeDTO> dto = EmployeeMapper.toDTOList(activeEmployee);
+        return ResponseEntity.ok(dto);
     }
 
 }

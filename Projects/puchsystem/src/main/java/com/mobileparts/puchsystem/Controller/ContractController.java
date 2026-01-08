@@ -1,5 +1,7 @@
 package com.mobileparts.puchsystem.Controller;
 
+import com.mobileparts.puchsystem.dto.EmployeeDTO;
+import com.mobileparts.puchsystem.dto.EmployeeMapper;
 import com.mobileparts.puchsystem.model.Employee;
 import com.mobileparts.puchsystem.repository.EmployeeRepository;
 import com.mobileparts.puchsystem.service.ContractExtensionService;
@@ -25,10 +27,11 @@ public class ContractController
     public EmployeeRepository employeeRepository;
 
     @GetMapping("/expiring")
-    public ResponseEntity<List<Employee>> getExpiringContracts()
+    public ResponseEntity<List<EmployeeDTO>> getExpiringContracts()
     {
         List<Employee> expiringContracts = contractExtensionService.findContractsExpiringSoon();
-        return ResponseEntity.ok(expiringContracts);
+        List<EmployeeDTO> dto = EmployeeMapper.toDTOList(expiringContracts);
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/sendextensions")
